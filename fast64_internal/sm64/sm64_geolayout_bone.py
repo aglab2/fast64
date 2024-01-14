@@ -551,7 +551,7 @@ def sm64_bone_register():
     Object.add_func = BoolProperty(name="Add Function Node")
 
     Object.use_render_range = BoolProperty(name="Use Render Range (LOD)")
-    Object.render_range = FloatVectorProperty(name="Render Range", size=2, default=(0, 100))
+    Object.render_range = FloatVectorProperty(name="Render Range", size=7, default=(-32000, 32000, -32000, 32000, -32000, 32000, 0))
 
     Object.scaleFromGeolayout = BoolProperty(
         name="Scale from Geolayout",

@@ -954,27 +954,34 @@ class StartRenderAreaNode:
 
 
 class RenderRangeNode:
-    def __init__(self, minDist, maxDist):
-        self.minDist = minDist
-        self.maxDist = maxDist
+    def __init__(self, x0, x1, y0, y1, z0, z1, sty):
+        self.x0 = x0
+        self.x1 = x1
+        self.y0 = y0
+        self.y1 = y1
+        self.z0 = z0
+        self.z1 = z1
+        self.sty = sty
         self.hasDL = False
 
     def size(self):
-        return 8
+        return 16
 
     def to_binary(self, segmentData):
         command = bytearray([GEO_SET_RENDER_RANGE, 0x00, 0x00, 0x00])
-        command.extend(convertFloatToShort(self.minDist).to_bytes(2, "big"))
-        command.extend(convertFloatToShort(self.maxDist).to_bytes(2, "big"))
+        command.extend(convertFloatToShort(self.x0).to_bytes(2, "big"))
+        command.extend(convertFloatToShort(self.x1).to_bytes(2, "big"))
         return command
 
     def to_c(self):
-        minDist = convertFloatToShort(self.minDist)
-        maxDist = convertFloatToShort(self.maxDist)
-        # if (abs(minDist) > 2**15 - 1) or (abs(maxDist) > 2**15 - 1):
-        # 	raise PluginError("A render range (LOD) node has a range that does not fit an s16.\n Range is " +\
-        # 		str(minDist) + ', ' + str(maxDist) + ' when converted to SM64 units.')
-        return "GEO_RENDER_RANGE(" + str(minDist) + ", " + str(maxDist) + "),"
+        x0 = int(self.x0)
+        x1 = int(self.x1)
+        y0 = int(self.y0)
+        y1 = int(self.y1)
+        z0 = int(self.z0)
+        z1 = int(self.z1)
+        sty = int(self.sty)
+        return "GEO_CULL(" + str(x0) + ", " + str(x1) + ", " + str(y0) + ", " + str(y1) + ", " + str(z0) + ", " + str(z1) + ", " + str(sty) + "),"
 
 
 class DisplayListWithOffsetNode(BaseDisplayListNode):
