@@ -1493,7 +1493,7 @@ def processMesh(
 
             if obj.use_render_range:
                 parentTransformNode = addParentNode(
-                    parentTransformNode, RenderRangeNode(obj.render_range[0], obj.render_range[1])
+                    parentTransformNode, RenderRangeNode(obj.render_range[0], obj.render_range[1], obj.render_range[2], obj.render_range[3],  obj.render_range[4], obj.render_range[5], obj.render_range[6])
                 )
 
             if obj.add_shadow:
