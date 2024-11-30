@@ -472,7 +472,7 @@ class SM64_Mario_Start:
 
 class SM64_Area:
     def __init__(
-        self, index, music_seq, music_preset, terrain_type, geolayout, collision, warpNodes, name, startDialog
+        self, index, music_seq, music_preset, terrain_type, geolayout, collision, warpNodes, name, startDialog, position
     ):
         self.cameraVolumes = []
         self.puppycamVolumes = []
@@ -491,13 +491,20 @@ class SM64_Area:
         self.mario_start = None
         self.splines = []
         self.startDialog = startDialog
+        self.position = position
 
     def macros_name(self):
         return self.name + "_macro_objs"
 
     def to_c_script(self, includeRooms, persistentBlockString: str = ""):
         data = ""
-        data += "\tAREA(" + str(self.index) + ", " + self.geolayout.name + "),\n"
+        data += ("\tAREA(" + str(self.index) + ", " + self.geolayout.name + ", "
+        + str(int(round(self.position[0])))
+        + ", "
+        + str(int(round(self.position[1])))
+        + ", "
+        + str(int(round(self.position[2])))
+        + "),\n")
         for warpNode in self.warpNodes:
             data += "\t\t" + warpNode + ",\n"
         for obj in self.objects:
@@ -700,6 +707,8 @@ class PuppycamVolume:
 
 
 def exportAreaCommon(areaObj, transformMatrix, geolayout, collision, name):
+    translation, rotation, scale = areaObj.matrix_local.decompose()
+    print(translation, rotation, scale)
     bpy.ops.object.select_all(action="DESELECT")
     areaObj.select_set(True)
 
@@ -726,6 +735,7 @@ def exportAreaCommon(areaObj, transformMatrix, geolayout, collision, name):
         [areaObj.warpNodes[i].to_c() for i in range(len(areaObj.warpNodes))],
         name,
         areaObj.startDialog if areaObj.showStartDialog else None,
+        translation,
     )
 
     start_process_sm64_objects(areaObj, area, transformMatrix, False)

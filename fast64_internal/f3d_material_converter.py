@@ -182,6 +182,9 @@ def convertAllBSDFtoF3D(objs, renameUV):
         if renameUV:
             for uv_layer in obj.data.uv_layers:
                 uv_layer.name = "UVMap"
+            for color_attribute in obj.data.color_attributes:
+                if "Color" == color_attribute.name:
+                    color_attribute.name = "Col"
         for index in range(len(obj.material_slots)):
             material = obj.material_slots[index].material
             if material is not None and not material.is_f3d:
@@ -228,6 +231,57 @@ def convertBSDFtoF3D(obj, index, material, materialDict):
                 updateMatWithName(newMaterial, material, materialDict)
             else:
                 print("Principled BSDF material does not have an Image Node attached to its Base Color.")
+    elif "SAIO Texture" in material.node_tree.nodes:
+        props = material.saio_material
+        dc = props.diffuse
+        sc = props.specular
+        ac = props.ambient
+
+        texture_node = material.node_tree.nodes["SAIO Texture"]
+        texture_image = texture_node.image
+
+        flat_shading = props.flat_shading # Unused
+        ignore_ambient = props.ignore_ambient # Unused
+        ignore_diffuse = props.ignore_diffuse # Unused
+        ignore_specular = props.ignore_specular # Unused
+        use_texture = props.use_texture # Unused
+        use_environment = props.use_environment # Unused
+        use_alpha = props.use_alpha
+        double_sided = props.double_sided
+
+        filter_mode = props.texture_filtering
+        source_blend_mode = props.source_alpha # Unused
+        destination_blend_mode = props.destination_alpha # Unused
+        
+        anisotropic_filtering = props.anisotropic_filtering # Unused
+        clamp_u = props.clamp_u # Unused
+        mirror_u = props.mirror_u # Unused
+        clamp_v = props.clamp_v # Unused
+        mirror_v = props.mirror_v # Unused
+
+        presetName = "sm64_vertex_colored_texture_transparent" if use_alpha else "sm64_vertex_colored_texture"
+        newMaterial = createF3DMat(obj, preset=presetName, index=index)
+        f3dMat = newMaterial.f3d_mat if newMaterial.mat_ver > 3 else newMaterial
+        f3dMat.tex0.tex = texture_image
+        if double_sided:
+            f3dMat.rdp_settings.g_cull_front = False
+            f3dMat.rdp_settings.g_cull_back = False
+        else:
+            f3dMat.rdp_settings.g_cull_front = False
+            f3dMat.rdp_settings.g_cull_back = True
+
+        if filter_mode == "POINT":
+            f3dMat.rdp_settings.g_mdsft_text_filt = 'G_TF_POINT'
+        else:
+            f3dMat.rdp_settings.g_mdsft_text_filt = 'G_TF_BILERP'
+        
+        f3dMat.tex0.S.clamp = clamp_u
+        f3dMat.tex0.S.mirror = mirror_u
+        f3dMat.tex0.T.clamp = clamp_v
+        f3dMat.tex0.T.mirror = mirror_v
+
+        updateMatWithName(newMaterial, material, materialDict)
+
     else:
         print("Material is not a Principled BSDF or non-node material.")
 
@@ -318,6 +372,78 @@ class MatUpdateConvert(bpy.types.Operator):
         return {"FINISHED"}  # must return a set
 
 
+def refreshF3DTextureTypesAll(objs, armatures, context):
+    materialDict = {}
+    for obj in objs:
+        refreshF3DTextureTypesOneObject(obj, materialDict, context)
+
+def refreshF3DTextureTypesOneObject(obj, materialDict, context):
+    for index in range(len(obj.material_slots)):
+        material = obj.material_slots[index].material
+        if material is not None and material.is_f3d:
+            if material not in materialDict:
+                settings_props = context.scene.fast64.settings
+                if not settings_props.auto_pick_texture_format:
+                    update_tex_values_manual(material, context)
+                    continue
+
+                f3d_mat: F3DMaterialProperty = material.f3d_mat
+                useDict = all_combiner_uses(f3d_mat)
+                tex0_props = f3d_mat.tex0
+                tex1_props = f3d_mat.tex1
+
+                tex0, tex1 = tex0_props.tex if useDict["Texture 0"] else None, (
+                    tex1_props.tex if useDict["Texture 1"] else None
+                )
+
+                if tex0:
+                    tex0_props.tex_format = get_optimal_format(tex0, settings_props.prefer_rgba_over_ci)
+                if tex1:
+                    tex1_props.tex_format = get_optimal_format(tex1, settings_props.prefer_rgba_over_ci)
+
+                if tex0 and tex1:
+                    if tex0_props.tex_format.startswith("CI") and not tex1_props.tex_format.startswith("CI"):
+                        tex0_props.tex_format = "RGBA16"
+                    elif tex1_props.tex_format.startswith("CI") and not tex0_props.tex_format.startswith("CI"):
+                        tex1_props.tex_format = "RGBA16"
+
+                update_tex_values_manual(material, context)
+                materialDict[material] = True
+
+
+class RefreshF3DTextureTypes(Operator):
+    bl_idname = "object.refresh_f3d_texture_types"
+    bl_label = "Refresh Fast3D texture types"
+    bl_options = {"REGISTER", "UNDO", "PRESET"}
+
+    def execute(self, context):
+        try:
+            if context.mode != "OBJECT":
+                raise PluginError("Operator can only be used in object mode.")
+
+            if context.scene.update_conv_all:
+                refreshF3DTextureTypesAll(
+                    [obj for obj in bpy.data.objects if obj.type == "MESH"],
+                    bpy.data.armatures,
+                    context,
+                )
+            else:
+                if len(context.selected_objects) == 0:
+                    raise PluginError("Mesh not selected.")
+                elif type(context.selected_objects[0].data) is not bpy.types.Mesh:
+                    raise PluginError("Mesh not selected.")
+
+                obj = context.selected_objects[0]
+                refreshF3DTextureTypesOneObject(obj, {}, context)
+
+        except Exception as e:
+            raisePluginError(self, e)
+            return {"CANCELLED"}
+
+        self.report({"INFO"}, "Created F3D material.")
+        return {"FINISHED"}  # must return a set
+
+
 class F3DMaterialConverterPanel(bpy.types.Panel):
     bl_label = "F3D Material Converter"
     bl_idname = "MATERIAL_PT_F3D_Material_Converter"
@@ -339,11 +465,13 @@ class F3DMaterialConverterPanel(bpy.types.Panel):
         self.layout.operator(MatUpdateConvert.bl_idname)
         self.layout.prop(context.scene, "update_conv_all")
         self.layout.operator(ReloadDefaultF3DPresets.bl_idname)
+        self.layout.operator(RefreshF3DTextureTypes.bl_idname)
 
 
 bsdf_conv_classes = (
     BSDFConvert,
     MatUpdateConvert,
+    RefreshF3DTextureTypes,
 )
 
 bsdf_conv_panel_classes = (F3DMaterialConverterPanel,)
