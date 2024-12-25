@@ -1100,7 +1100,7 @@ class SM64ObjectPanel(bpy.types.Panel):
         if obj_details.uses_scale and not obj_scale_is_unified(obj):
             warnings.add("Object's scale must all be the same exact value (e.g. 2, 2, 2)")
 
-        if not obj_details.uses_scale and not all_values_equal_x(obj.scale, 1):
+        if not obj_details.uses_scale and not all_values_equal_x([round(s, 3) for s in obj.scale], 1):
             warnings.add("Object's scale values must all be set to 1")
 
         loc = obj.matrix_local.decompose()[0]
@@ -1942,7 +1942,7 @@ class SM64_CombinedObjectProperties(bpy.types.PropertyGroup):
         default="Actor",
     )
     # level export header
-    level_name: bpy.props.EnumProperty(items=enumLevelNames, name="Level", default="bob")
+    level_name: bpy.props.EnumProperty(items=enumLevelNames, name="Level", default="castle_grounds")
     custom_level_name: bpy.props.StringProperty(name="custom")
     non_decomp_level: bpy.props.BoolProperty(name="Custom Export Path")
     custom_level_path: bpy.props.StringProperty(name="Custom Path", subtype="FILE_PATH")
@@ -2337,7 +2337,7 @@ enumStarGetCutscene = [
 class WarpNodeProperty(bpy.types.PropertyGroup):
     warpType: bpy.props.EnumProperty(name="Warp Type", items=enumWarpType, default="Warp")
     warpID: bpy.props.StringProperty(name="Warp ID", default="0x0A")
-    destLevelEnum: bpy.props.EnumProperty(name="Destination Level", default="bob", items=enumLevelNames)
+    destLevelEnum: bpy.props.EnumProperty(name="Destination Level", default="castle_grounds", items=enumLevelNames)
     destLevel: bpy.props.StringProperty(name="Destination Level Value", default="LEVEL_BOB")
     destArea: bpy.props.StringProperty(name="Destination Area", default="0x01")
     destNode: bpy.props.StringProperty(name="Destination Node", default="0x0A")

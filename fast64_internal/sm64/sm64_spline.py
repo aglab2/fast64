@@ -155,7 +155,7 @@ def assertCurveValid(obj):
         return False
     if len(curve.splines) != 1:
         # Curve was intended to be exported but has multiple disconnected segments
-        raise PluginError("Exported curves should have only one single segment, found " + str(len(curve.splines)))
+        raise PluginError(f"{obj.name}: Exported curves should have only one single segment, found " + str(len(curve.splines)))
     return True
 
 

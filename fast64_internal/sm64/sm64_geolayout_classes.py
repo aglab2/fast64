@@ -11,6 +11,7 @@ from ..utility import (
     encodeSegmentedAddr,
     writeVectorToShorts,
     convertFloatToShort,
+    convertFloatToFloat,
     writeEulerVectorToShorts,
     writeFloatToShort,
     convertEulerFloatToShort,
@@ -62,6 +63,10 @@ drawLayerNames = {
     6: "LAYER_TRANSPARENT_DECAL",
     7: "LAYER_TRANSPARENT_INTER",
 }
+
+
+def convertFloatToShortExplicit(value):
+    return "(s16)" + str(convertFloatToFloat(value))
 
 
 def getDrawLayerName(drawLayer):
@@ -693,9 +698,9 @@ class TranslateRotateNode(BaseDisplayListNode):
             return self.c_func_macro(
                 "GEO_TRANSLATE_ROTATE",
                 getDrawLayerName(self.drawLayer),
-                str(convertFloatToShort(self.translate[0])),
-                str(convertFloatToShort(self.translate[1])),
-                str(convertFloatToShort(self.translate[2])),
+                convertFloatToShortExplicit(self.translate[0]),
+                convertFloatToShortExplicit(self.translate[1]),
+                convertFloatToShortExplicit(self.translate[2]),
                 str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[0])),
                 str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[1])),
                 str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[2])),
@@ -704,9 +709,9 @@ class TranslateRotateNode(BaseDisplayListNode):
             return self.c_func_macro(
                 "GEO_TRANSLATE",
                 getDrawLayerName(self.drawLayer),
-                str(convertFloatToShort(self.translate[0])),
-                str(convertFloatToShort(self.translate[1])),
-                str(convertFloatToShort(self.translate[2])),
+                convertFloatToShortExplicit(self.translate[0]),
+                convertFloatToShortExplicit(self.translate[1]),
+                convertFloatToShortExplicit(self.translate[2]),
             )
         elif self.fieldLayout == 2:
             return self.c_func_macro(
@@ -759,9 +764,9 @@ class TranslateNode(BaseDisplayListNode):
         return self.c_func_macro(
             "GEO_TRANSLATE_NODE",
             getDrawLayerName(self.drawLayer),
-            str(convertFloatToShort(self.translate[0])),
-            str(convertFloatToShort(self.translate[1])),
-            str(convertFloatToShort(self.translate[2])),
+            convertFloatToShortExplicit(self.translate[0]),
+            convertFloatToShortExplicit(self.translate[1]),
+            convertFloatToShortExplicit(self.translate[2]),
         )
 
 

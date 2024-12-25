@@ -801,7 +801,7 @@ def rotate_bounds(bounds, mtx: mathutils.Matrix):
 
 def obj_scale_is_unified(obj):
     """Combine scale values into a set to ensure all values are the same"""
-    return len(set(obj.scale)) == 1
+    return len(set([round(s, 3) for s in obj.scale])) == 1
 
 
 def translation_rotation_from_mtx(mtx: mathutils.Matrix):
@@ -1434,6 +1434,10 @@ def writeFloatToShort(command, offset, value):
 
 def convertFloatToShort(value):
     return int(round((value * bpy.context.scene.fast64.sm64.blender_to_sm64_scale)))
+
+
+def convertFloatToFloat(value):
+    return (value * bpy.context.scene.fast64.sm64.blender_to_sm64_scale)
 
 
 def convertEulerFloatToShort(value):

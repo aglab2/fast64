@@ -505,7 +505,7 @@ def convertObjectToGeolayout(
         if not meshGeolayout.has_data():
             raise PluginError("No gfx data to export, gfx export cancelled")
     except Exception as e:
-        raise Exception(str(e))
+        raise Exception(name + ": " + str(e))
     finally:
         cleanupDuplicatedObjects(allObjs)
         rootObj.select_set(True)
@@ -1602,9 +1602,12 @@ def processMesh(
 
         alphabeticalChildren = sorted(obj.children, key=lambda childObj: childObj.original_name.lower())
         for childObj in alphabeticalChildren:
-            processMesh(
-                fModel, childObj, transformMatrix, transformNode, geolayout, geolayoutGraph, False, convertTextureData
-            )
+            try:
+                processMesh(
+                    fModel, childObj, transformMatrix, transformNode, geolayout, geolayoutGraph, False, convertTextureData
+                )
+            except Exception as ex:
+                raise Exception(f"Error processing object {childObj.name}: {ex}")
 
 
 # need to remember last geometry holding parent bone.

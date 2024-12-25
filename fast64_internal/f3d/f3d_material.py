@@ -2176,9 +2176,9 @@ def get_optimal_format(tex: bpy.types.Image | None, prefer_rgba_over_ci: bool):
             return "I4"
 
         if has_alpha_4_bit:
-            return "IA8"
+            return "IA16"
 
-        return "I8"
+        return "IA16"
     else:
         if len(rgba_colors) <= 16 and (not prefer_rgba_over_ci or n_size > 2048):
             return "CI4"

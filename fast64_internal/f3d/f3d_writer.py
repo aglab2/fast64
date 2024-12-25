@@ -553,7 +553,7 @@ def exportF3DCommon(obj, fModel, transformMatrix, includeChildren, name, DLForma
         cleanupCombineObj(tempObj, meshList)
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
-        raise Exception(str(e))
+        raise Exception(obj.name + "-" + str(e))
 
     return fMeshes
 
