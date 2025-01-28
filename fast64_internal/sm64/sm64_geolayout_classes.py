@@ -3,6 +3,7 @@ from __future__ import annotations
 import bpy
 from struct import pack
 from copy import copy
+from math import degrees
 
 from ..utility import (
     PluginError,
@@ -68,6 +69,9 @@ drawLayerNames = {
 def convertFloatToShortExplicit(value):
     return "(s16)" + str(convertFloatToFloat(value))
 
+
+def convertEulerFloatToShortExplicit(value):
+    return "(s16)" + str(degrees(value))
 
 def getDrawLayerName(drawLayer):
     layer = drawLayer
@@ -701,9 +705,9 @@ class TranslateRotateNode(BaseDisplayListNode):
                 convertFloatToShortExplicit(self.translate[0]),
                 convertFloatToShortExplicit(self.translate[1]),
                 convertFloatToShortExplicit(self.translate[2]),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[0])),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[1])),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[2])),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[0]),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[1]),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[2]),
             )
         elif self.fieldLayout == 1:
             return self.c_func_macro(
@@ -717,15 +721,15 @@ class TranslateRotateNode(BaseDisplayListNode):
             return self.c_func_macro(
                 "GEO_ROTATE",
                 getDrawLayerName(self.drawLayer),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[0])),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[1])),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[2])),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[0]),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[1]),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[2]),
             )
         elif self.fieldLayout == 3:
             return self.c_func_macro(
                 "GEO_ROTATE_Y",
                 getDrawLayerName(self.drawLayer),
-                str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[1])),
+                convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[1]),
             )
 
 
@@ -807,9 +811,9 @@ class RotateNode(BaseDisplayListNode):
         return self.c_func_macro(
             "GEO_ROTATION_NODE",
             getDrawLayerName(self.drawLayer),
-            str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[0])),
-            str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[1])),
-            str(convertEulerFloatToShort(self.rotate.to_euler(geoNodeRotateOrder)[2])),
+            convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[0]),
+            convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[1]),
+            convertEulerFloatToShortExplicit(self.rotate.to_euler(geoNodeRotateOrder)[2]),
         )
 
 

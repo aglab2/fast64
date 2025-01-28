@@ -2900,7 +2900,7 @@ class FMesh:
             self.draw.commands.append(SPDisplayList(fMaterial.material))
         else:
             lastCommand = self.draw.commands[-1]
-            if isinstance(lastCommand, SPDisplayList) and lastCommand.displayList == fMaterial.revert:
+            if isinstance(lastCommand, SPDisplayList) and lastCommand.displayList.name == fMaterial.revert.name:
                 self.draw.commands.remove(lastCommand)
 
     def add_cull_vtx(self):
