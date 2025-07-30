@@ -230,24 +230,24 @@ def convertBSDFtoF3D(obj, index, material, materialDict):
         texture_node = material.node_tree.nodes["SAIO Texture"]
         texture_image = texture_node.image
 
-        flat_shading = props.flat_shading # Unused
-        ignore_ambient = props.ignore_ambient # Unused
-        ignore_diffuse = props.ignore_diffuse # Unused
-        ignore_specular = props.ignore_specular # Unused
-        use_texture = props.use_texture # Unused
-        use_environment = props.use_environment # Unused
+        flat_shading = props.flat_shading  # Unused
+        ignore_ambient = props.ignore_ambient  # Unused
+        ignore_diffuse = props.ignore_diffuse  # Unused
+        ignore_specular = props.ignore_specular  # Unused
+        use_texture = props.use_texture  # Unused
+        use_environment = props.use_environment  # Unused
         use_alpha = props.use_alpha
         double_sided = props.double_sided
 
         filter_mode = props.texture_filtering
-        source_blend_mode = props.source_alpha # Unused
-        destination_blend_mode = props.destination_alpha # Unused
-        
-        anisotropic_filtering = props.anisotropic_filtering # Unused
-        clamp_u = props.clamp_u # Unused
-        mirror_u = props.mirror_u # Unused
-        clamp_v = props.clamp_v # Unused
-        mirror_v = props.mirror_v # Unused
+        source_blend_mode = props.source_alpha  # Unused
+        destination_blend_mode = props.destination_alpha  # Unused
+
+        anisotropic_filtering = props.anisotropic_filtering  # Unused
+        clamp_u = props.clamp_u  # Unused
+        mirror_u = props.mirror_u  # Unused
+        clamp_v = props.clamp_v  # Unused
+        mirror_v = props.mirror_v  # Unused
 
         presetName = "sm64_vertex_colored_texture_transparent" if use_alpha else "sm64_vertex_colored_texture"
         newMaterial = createF3DMat(obj, preset=presetName, index=index)
@@ -261,10 +261,10 @@ def convertBSDFtoF3D(obj, index, material, materialDict):
             f3dMat.rdp_settings.g_cull_back = True
 
         if filter_mode == "POINT":
-            f3dMat.rdp_settings.g_mdsft_text_filt = 'G_TF_POINT'
+            f3dMat.rdp_settings.g_mdsft_text_filt = "G_TF_POINT"
         else:
-            f3dMat.rdp_settings.g_mdsft_text_filt = 'G_TF_BILERP'
-        
+            f3dMat.rdp_settings.g_mdsft_text_filt = "G_TF_BILERP"
+
         f3dMat.tex0.S.clamp = clamp_u
         f3dMat.tex0.S.mirror = mirror_u
         f3dMat.tex0.T.clamp = clamp_v
@@ -355,6 +355,7 @@ def refreshF3DTextureTypesAll(objs, armatures, context):
     materialDict = {}
     for obj in objs:
         refreshF3DTextureTypesOneObject(obj, materialDict, context)
+
 
 def refreshF3DTextureTypesOneObject(obj, materialDict, context):
     for index in range(len(obj.material_slots)):

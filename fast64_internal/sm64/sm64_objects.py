@@ -522,13 +522,19 @@ class SM64_Area:
 
     def to_c_script(self, includeRooms, persistentBlockString: str = ""):
         data = ""
-        data += ("\tAREA(" + str(self.index) + ", " + self.geolayout.name + ", "
-        + str(int(round(self.position[0])))
-        + ", "
-        + str(int(round(self.position[1])))
-        + ", "
-        + str(int(round(self.position[2])))
-        + "),\n")
+        data += (
+            "\tAREA("
+            + str(self.index)
+            + ", "
+            + self.geolayout.name
+            + ", "
+            + str(int(round(self.position[0])))
+            + ", "
+            + str(int(round(self.position[1])))
+            + ", "
+            + str(int(round(self.position[2])))
+            + "),\n"
+        )
         for warpNode in self.warpNodes:
             data += "\t\t" + warpNode + ",\n"
         # export objects in name order

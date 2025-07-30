@@ -73,6 +73,7 @@ def convertFloatToShortExplicit(value):
 def convertEulerFloatToShortExplicit(value):
     return "(s16)" + str(degrees(value))
 
+
 def getDrawLayerName(drawLayer):
     layer = drawLayer
     if drawLayer is not None:

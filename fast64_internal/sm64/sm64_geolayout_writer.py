@@ -1604,7 +1604,14 @@ def processMesh(
         for childObj in alphabeticalChildren:
             try:
                 processMesh(
-                    fModel, childObj, transformMatrix, transformNode, geolayout, geolayoutGraph, False, convertTextureData
+                    fModel,
+                    childObj,
+                    transformMatrix,
+                    transformNode,
+                    geolayout,
+                    geolayoutGraph,
+                    False,
+                    convertTextureData,
                 )
             except Exception as ex:
                 raise Exception(f"Error processing object {childObj.name}: {ex}")

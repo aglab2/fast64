@@ -1437,7 +1437,7 @@ def convertFloatToShort(value):
 
 
 def convertFloatToFloat(value):
-    return (value * bpy.context.scene.fast64.sm64.blender_to_sm64_scale)
+    return value * bpy.context.scene.fast64.sm64.blender_to_sm64_scale
 
 
 def convertEulerFloatToShort(value):
