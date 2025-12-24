@@ -2091,11 +2091,13 @@ def processSwitchBoneMatOverrides(materialOverrides, switchBone):
 
 
 def getGroupIndex(vert, armatureObj, obj):
+    print("")
     actualGroups = []
     belowLimitGroups = []
     nonBoneGroups = []
     for group in vert.groups:
         groupName = getGroupNameFromIndex(obj, group.group)
+        print(groupName)
         if groupName is not None:
             if groupName in armatureObj.data.bones:
                 if group.weight > 0.4:
@@ -2122,7 +2124,8 @@ def getGroupIndex(vert, armatureObj, obj):
         if group.weight > 0.5:
             if significantWeightGroup is None:
                 significantWeightGroup = group
-            else:
+            else:    
+                print(vert.co)
                 highlightWeightErrors(obj, [vert], "VERT")
                 raise VertexWeightError(
                     "A vertex was found that was significantly weighted to multiple groups. Make sure each vertex only belongs to one group whose weight is greater than 0.5. ("
@@ -2376,6 +2379,10 @@ def saveModelGivenVertexGroup(
                     isChildSkinnedFace = True
                     break
                 else:
+                    print(f"{vertexGroup} vertex {vertIndex} in face {face.index} is connected to ancestor group {vertGroupIndex} with {currentGroupIndex} and {parentGroupIndex}")
+                    for i in range(3):
+                        print(mesh.vertices[face.vertices[i]].co)
+
                     highlightWeightErrors(obj, [face], "FACE")
                     raise VertexWeightError(
                         "Error with "

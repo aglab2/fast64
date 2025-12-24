@@ -18,6 +18,8 @@ from .f3d_gbi import (
     SPLine3D,
     SPLineW3D,
     SP2Triangles,
+    SPTriSnake,
+    SPContinueSnake,
     SPCullDisplayList,
     SPSegment,
     SPBranchLessZraw,
@@ -295,7 +297,7 @@ class BleedGraphics:
         # add in triangles
         cmd_list.commands.extend(tri_list.commands)
         # skinned meshes don't draw tris sometimes, use this opportunity to save a sync
-        tri_cmds = [c for c in tri_list.commands if type(c) == SP1Triangle or type(c) == SP2Triangles]
+        tri_cmds = [c for c in tri_list.commands if type(c) == SP1Triangle or type(c) == SP2Triangles or type(c) == SPTriSnake or type(c) == SPContinueSnake]
         if tri_cmds:
             reset_cmd_dict[DPPipeSync] = DPPipeSync()
         [bleed_gfx_lists.add_reset_cmd(cmd, reset_cmd_dict) for cmd in bleed_gfx_lists.bled_mats]
@@ -507,7 +509,7 @@ class BleedGraphics:
         for parse_cmd in cmd_list.commands:
             if parse_cmd is cmd:
                 return tri_buffered
-            if type(parse_cmd) in [SP2Triangles, SP1Triangle, SPLine3D, SPLineW3D]:
+            if type(parse_cmd) in [SP2Triangles, SP1Triangle, SPLine3D, SPLineW3D, SPTriSnake, SPContinueSnake]:
                 tri_buffered = False
                 continue
             if type(parse_cmd) in conflict_cmds:

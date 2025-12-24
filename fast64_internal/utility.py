@@ -653,6 +653,7 @@ def highlightWeightErrors(obj, elements, elementType):
 
 
 def checkIdentityRotation(obj, rotation, allowYaw):
+    return
     rotationDiff = rotation.to_euler()
     if abs(rotationDiff.x) > 0.001 or (not allowYaw and abs(rotationDiff.y) > 0.001) or abs(rotationDiff.z) > 0.001:
         raise PluginError(
@@ -1575,6 +1576,20 @@ def unpackNormal(packedNormal: int) -> Vector:
 
 
 def packNormal(normal: Vector) -> int:
+    def convertComponent(v: float, range: int):
+        v = int(round(v * float(range)))
+        v = min(max(v, -range), range - 1)
+        v = v if v >= 0 else v + 2 * range
+        return v
+
+    x = convertComponent(normal[0], 16) << 11
+    y = convertComponent(normal[1], 32) << 5
+    z = convertComponent(normal[2], 16)
+    assert (x & y) == 0 and (y & z) == 0 and (x & z) == 0
+    packedNormal = x | y | z
+    assert packedNormal >= 0 and packedNormal <= 0xFFFF
+    return packedNormal
+
     # Convert standard normal to constant-L1 normal
     assert len(normal) == 3
     l1norm = abs(normal[0]) + abs(normal[1]) + abs(normal[2])

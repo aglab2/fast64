@@ -2900,7 +2900,12 @@ class FMesh:
             self.draw.commands.append(SPDisplayList(fMaterial.material))
         else:
             lastCommand = self.draw.commands[-1]
-            if isinstance(lastCommand, SPDisplayList) and lastCommand.displayList.name == fMaterial.revert.name:
+            if (
+                isinstance(lastCommand, SPDisplayList)
+                and lastCommand.displayList
+                and fMaterial.revert
+                and lastCommand.displayList.name == fMaterial.revert.name
+            ):
                 self.draw.commands.remove(lastCommand)
 
     def add_cull_vtx(self):
@@ -3298,7 +3303,7 @@ class FImage:
 
         # This is to force 8 byte alignment
         if bitsPerValue != 64:
-            code.source = f"Gfx {self.name}_aligner[] = {{gsSPEndDisplayList()}};\n"
+            code.source += "ALIGNED8 "
         code.source += f"u{str(bitsPerValue)} {self.name}[] = {{\n\t"
         code.source += texData
         code.source += "\n};\n\n"
@@ -3711,9 +3716,28 @@ class SP2Triangles(GbiMacro):
         return words[0].to_bytes(4, "big") + words[1].to_bytes(4, "big")
 
 
-# F3DEX3 TODO: Encoding of _g*SP5Triangles commands (SPTriangleStrip, SPTriangleFan)
-# and support for these in export including tri reordering
+@dataclass(unsafe_hash=True)
+class SPTriSnake(GbiMacro):
+    vertices: list[int]
+    turns: list[int]    
 
+    def to_binary(self, f3d, segments):
+        raise PluginError("Binary snake command encoding is not supported")
+    
+    def to_c(self, static=True):
+        header = "gsSPTriSnake(" if static else "sSPTriSnake(glistp++, "
+        return header + str(self.segment) + ", " + "0x" + format(self.base, "X") + ")"
+
+@dataclass(unsafe_hash=True)
+class SPContinueSnake(GbiMacro):
+    commands: list[int]
+
+    def to_binary(self, f3d, segments):
+        raise PluginError("Binary snake command encoding is not supported")
+    
+    def to_c(self, static=True):
+        header = "gsSPContinueSnake(" if static else "sSPContinueSnake(glistp++, "
+        return header + str(self.segment) + ", " + "0x" + format(self.base, "X") + ")"
 
 @dataclass(unsafe_hash=True)
 class SPCullDisplayList(GbiMacro):
